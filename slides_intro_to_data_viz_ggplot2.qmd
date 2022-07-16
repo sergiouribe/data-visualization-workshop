@@ -13,7 +13,7 @@ format:
     code-overflow: wrap
 ---
 
-# Load the packages  {visibility="hidden"}
+# Load the packages {visibility="hidden"}
 
 ```{r}
 pacman::p_load(tidyverse, palmerpenguins)
@@ -390,7 +390,9 @@ penguins %>%
   theme(legend.position = c(.9, .18))
 ```
 
-# Back to slides!
+# End first session
+
+# Second session
 
 # Data transformations
 
@@ -465,7 +467,68 @@ mammals %>%
 
 There is no analysis where you do not have to transform the data
 
-## Data transformations
+## Data transformations 1
+
+### Select()
+
+```{r}
+penguins %>% 
+  select(species, sex)
+```
+
+### filter()
+
+```{r}
+penguins %>% 
+  filter(island == "Biscoe" & year == 2007)
+```
+
+### group_by() (and count() )
+
+```{r}
+penguins %>% 
+  group_by(species) %>% 
+  count()
+```
+
+### arrange()
+
+```{r}
+penguins %>% 
+  arrange(bill_length_mm) %>% 
+  head()
+```
+
+```{r}
+penguins %>% 
+  arrange(desc(bill_length_mm)) %>% 
+  head()
+```
+
+```{r}
+penguins %>% 
+  group_by(species, year) %>% 
+  count()
+```
+
+### mutate()
+
+```{r}
+penguins %>% 
+  mutate(weight_in_kg = body_mass_g / 1000)
+```
+
+### summarise()
+
+```{r}
+penguins %>% 
+  mutate(weight_in_kg = body_mass_g / 1000) %>% 
+  group_by(species) %>% 
+  summarise(n = n(), 
+            "Mean weight" = mean(weight_in_kg))
+```
+
+## Data transformations 2
 
 ```{r}
 head(penguins)
