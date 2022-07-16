@@ -1,0 +1,11 @@
+---
+title: "2022 Introduction to data visualization with R - Cesis workshop"
+author: "Sergio Uribe"
+format: html
+---
+
+```{r}
+pacman::p_load(tidyverse, palmerpenguins)
+```
+
+## The dataset

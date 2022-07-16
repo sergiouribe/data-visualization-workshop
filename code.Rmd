@@ -1,0 +1,234 @@
+---
+title: '2022 LJSA Data visualization with R Workshop '
+author: "Sergio Uribe, @sergiouribe"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+# Preparation, load the required packages
+
+If not installed, first install the pacman package
+
+```{r}
+# install.packages("pacman") # uncomment this line, removing the first #
+```
+
+Load the required packages
+
+```{r}
+pacman::p_load(tidyverse, palmerpenguins)
+```
+
+# Load the data
+
+```{r}
+data(penguins)
+```
+
+# Basic data exploration
+
+# Check the structure
+
+```{r}
+str(penguins)
+```
+
+Similar to structure, but printer-friendly
+
+```{r}
+glimpse(penguins)
+```
+
+# Check the first and last rows
+
+```{r}
+head(penguins)
+```
+
+```{r}
+tail(penguins)
+```
+
+# View the dataset in spreadsheet format
+
+```{r}
+View(penguins)
+```
+
+# View the names of the columns
+
+```{r}
+names(penguins)
+```
+
+# Create a summary of the dataset
+
+```{r}
+summary(penguins)
+```
+
+## Access a specific column of the dataset
+
+Using dataset**\$**column
+
+```{r}
+summary(penguins$sex)
+```
+
+```{r}
+summary(penguins$bill_length_mm)
+```
+
+# My first plot
+
+We need
+
+1.  data
+
+2.  some aesthetic
+
+3.  a geom to plot the data on the aesthetic
+
+## The data
+
+```{r}
+penguins %>%  # load the data, and with this data >
+  ggplot() # create a plot
+```
+
+## The aesthetic
+
+```{r}
+penguins %>%  # load the data, and with this data >
+  ggplot(aes(x = body_mass_g))  # create a plot and add an aesthetic
+```
+
+```{r}
+penguins %>%  # load the data, and with this data >
+  ggplot(aes(x = body_mass_g)) + # create a plot and add an aesthetic
+  geom_histogram() # add the geom, that allow to represent the data inside the aesthetic with some specified geometry
+```
+
+# Make some transformations
+
+Usually, it is necessary to make some transformations to the data before plotting them.
+
+The general formula is
+
+data %\>%
+
+**some transformation** %\>%
+
+the plot
+
+In this case, we are going to filter a type of penguin to see its weight distribution.
+
+```{r}
+penguins %>% # this is the data
+  filter(species == "Gentoo") %>% # filter only the gentoo penguin
+  ggplot(aes(x = body_mass_g)) +
+  geom_histogram()
+```
+
+Alternatively, we can use all the data and make different graphs for some variables, e.g. sex and species.
+
+```{r}
+penguins %>% # this is the data
+  ggplot(aes(x = body_mass_g)) +
+  geom_histogram() +
+  facet_grid(sex ~ species)
+```
+
+```{r}
+penguins %>% 
+  drop_na() %>%  # to remove the NA's we can make a transformation before plotting
+  ggplot(aes(x = body_mass_g)) +
+  geom_histogram() +
+  facet_grid(sex ~ species)
+```
+
+# Two variables
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, 
+         y = bill_depth_mm)) +
+  geom_point()
+```
+
+## Is any correlation?
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, 
+         y = bill_depth_mm)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+## Verify whether the correlation is robust, disaggregating by species
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, 
+         y = bill_depth_mm, 
+         shape = species, 
+         color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+An example of Simpon's paradox
+
+# Polish the graph
+
+## Change the theme
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, 
+         y = bill_depth_mm, 
+         shape = species, 
+         color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  # polishing the graph
+  theme_classic()
+```
+
+## Add labels
+
+```{r}
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, 
+         y = bill_depth_mm, 
+         shape = species, 
+         color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  # polishing the graph
+  theme_classic() +
+  labs(title = "The Title", 
+       subtitle = "Some subtitle", 
+       x = "Bill length (mm)", 
+       y = "Bill depth (mm)", 
+       shape = "Species", 
+       color = "Species")
+```
+
+# Export the plot
+
+Check <https://ggplot2.tidyverse.org/reference/ggsave.html>
+
+```{r}
+ggsave(filename = "myFirstPlot.pdf", 
+       width = 12, 
+       height = 10, 
+       dpi = 300, 
+       units = "cm")
+```

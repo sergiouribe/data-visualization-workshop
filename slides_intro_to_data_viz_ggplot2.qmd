@@ -1,0 +1,528 @@
+---
+title: "Introduction to data visualization with ggplot2"
+author: 
+   - Sergio Uribe. PhD, MSc, DDS
+   - Twitter @sergiouribe
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+execute:
+  echo: true
+  warning: false
+format: 
+  revealjs:
+    slide-number: true
+    code-overflow: wrap
+---
+
+# Load the packages  {visibility="hidden"}
+
+```{r}
+pacman::p_load(tidyverse, palmerpenguins)
+```
+
+# The final product
+
+![](images/screenshoot_Selection_2308.png)
+
+# The interface
+
+## Rstudio interface
+
+![R Studio Interface](images/Leseras%20(2).png)
+
+## Create an rmarkdown document
+
+![](images/rstudio2-01.png)
+
+## The visual editor
+
+![](images/2022-07-15_11-06.png)
+
+## The shortcuts
+
+### ![](images/outputs-1-word.png)
+
+**Insert a chuck of code** \> Ctrl + Alt + I
+
+## Load the packages
+
+```{r, echo=TRUE, eval=FALSE}
+install.packages("pacman")
+pacman::p_load(tidyverse, palmerpenguins)
+```
+
+# The data
+
+Need to be in **tidy** format
+
+![](images/tidy.jpg)
+
+## The Dataset
+
+```{r, eval=TRUE}
+#| output-location: fragment
+#| code-line-numbers: "1"
+data("penguins")
+```
+
+::: columns
+::: {.column width="50%"}
+![](images/penguins.png){width="410"}
+:::
+
+::: {.column width="50%"}
+![](images/culmen_depth.png){width="418"}
+:::
+:::
+
+The dataset contain data for 344 penguins. There are 3 different species of penguins in this dataset, collected from 3 islands in the Palmer Archipelago, Antarctica
+
+## Exploring the dataset
+
+### Basic dataset exploration
+
+```{r, eval=FALSE}
+#| code-line-numbers: "|1|2|3|4|5|6|7|8"
+str(penguins) # check the structure
+glimpse(penguins) # similar but print friendly
+dim(penguins) # check the dimensions, also available in the above
+head(penguins) # check the first rows
+tail(penguins) # check the last rows
+names(penguins) # the names of the columns
+summary(penguins) # generates a summary by variable
+summary(penguins$island) # the $ allows access to a particular column
+```
+
+## My first ggplot graph
+
+```{r, echo=FALSE, eval=TRUE}
+#| output-location: column-fragment 
+#| fig-width: 7
+#| fig-height: 4.4
+penguins %>% 
+  ggplot(aes(x = body_mass_g)) +
+  geom_histogram() +
+  facet_grid(species ~ .)
+```
+
+## Question: what is the weight of the penguins?
+
+**Question**: how much do penguins weigh?
+
+**Variables**: numeric
+
+```{r, eval=TRUE}
+#| output-location: column-fragment 
+#| fig-width: 7
+#| fig-height: 4.4
+# the data
+ggplot(data = penguins)
+```
+
+## Now add the aesthetics x
+
+It's only one variable: body_mass
+
+```{r, eval=TRUE}
+#| output-location: fragment 
+#| fig-width: 7
+#| fig-height: 4.4
+# the data
+penguins %>% 
+  # now I will make a graph
+  ggplot(aes(x = body_mass_g))
+```
+
+## and add the geom
+
+The **geom** is the geometric representation of the data, i.e. histogram, boxplot, point, bar, column, etc.
+
+Since is one variable, we'll use *geom_histogram*
+
+```{r, eval=TRUE}
+#| output-location: fragment 
+#| fig-width: 7
+#| fig-height: 3
+# the data
+penguins %>% 
+  # now I will make a graph
+  ggplot(aes(x = body_mass_g)) + 
+  # the geometry
+  geom_histogram()
+```
+
+## But we have three species!
+
+![](images/penguins.png){width="410"}
+
+## Filter just one species
+
+```{r}
+#| output-location: fragment 
+#| fig-width: 7
+#| fig-height: 4.4
+
+penguins %>% 
+  # some data transformation here
+  filter(species == "Gentoo") %>% 
+  # the rest of the plot
+  ggplot(aes(x = body_mass_g)) + 
+  # the geometry
+  geom_histogram()
+```
+
+## See them all!
+
+```{r, eval=TRUE}
+#| output-location: column-fragment 
+#| fig-width: 7
+#| fig-height: 4.4
+# the data
+penguins %>% 
+  # now I will make a graph
+  ggplot(aes(x = body_mass_g)) + 
+  # the geometry
+  geom_histogram() + 
+  # create new facet for a new variable to dissagregate to check the body_mass per species
+  facet_grid(species ~ . ) # rows ~ columns
+```
+
+Your turn: **add a new column by sex**
+
+## Bar graphs
+
+**Question**: how many penguins by island?
+
+**Variables**: numeric vs nominal
+
+```{r}
+#| output-location: fragment
+#| fig-width: 7
+#| fig-height: 4.4
+penguins %>% 
+  ggplot(aes(x = species )) + 
+  geom_bar()
+```
+
+## Reorder bars
+
+```{r}
+#| output-location: fragment 
+#| code-line-numbers: "|2"
+#| fig-width: 7
+#| fig-height: 4.4
+penguins %>% 
+  ggplot(aes(x = fct_infreq(species))) + 
+  geom_bar()
+```
+
+## Do all the penguins live on all the islands?
+
+```{r}
+#| output-location: fragment 
+#| code-line-numbers: "|2"
+#| fig-width: 7
+#| fig-height: 4.4
+penguins %>% 
+  ggplot(aes(x = fct_infreq(species), 
+             fill = island)) + 
+  geom_bar()
+```
+
+## Now for two variables
+
+```{r, eval=TRUE}
+glimpse(penguins)
+```
+
+We have bill_length_mm, bill_depth_mm, flipper_length_mm and body_mass_g
+
+## Body mass by species
+
+**Question**: What is the body mass by species?
+
+**Variables**: Numeric (body mass) vs discrete or nominal (species)
+
+```{r}
+
+```
+
+## Bill length vs. depth
+
+**Question**: What is the relationship between bill length & depth?
+
+**Variables**: Both numeric
+
+![](images/culmen_depth.png)
+
+# Bill length vs. depth
+
+```{r}
+#| output-location: fragment
+#| fig-width: 7
+#| fig-height: 4.4
+penguins %>%    
+  ggplot(aes(x = bill_length_mm,
+             y = bill_depth_mm)) +
+  geom_point()
+
+
+```
+
+# and the relationship?
+
+```{r}
+#| output-location: fragment
+#| fig-width: 7
+#| fig-height: 4.4
+penguins %>%
+  ggplot(aes(x = bill_length_mm,    
+             y = bill_depth_mm)) +    
+  geom_point() +  
+  geom_smooth(method = "lm", se = FALSE, color = "gray50")
+```
+
+## But is this true?
+
+Check by species
+
+```{r}
+#| output-location: fragment
+#| fig-width: 7
+#| fig-height: 3.5
+penguins %>%  
+  ggplot(aes(x = bill_length_mm,
+             y = bill_depth_mm,   
+             color = species,   
+             shape = species)) +
+  geom_point()
+```
+
+## check again
+
+```{r}
+#| output-location: fragment
+#| fig-width: 7
+#| fig-height: 4.4
+penguins %>%
+  ggplot(aes(x = bill_length_mm,        
+             y = bill_depth_mm,     
+             color = species,
+             shape = species)) +    
+  geom_point() +  
+  geom_smooth(method = "lm", se = FALSE, color = "gray50")
+```
+
+# Pimp my graph
+
+## Pimp my graph: Themes
+
+```{r}
+#| output-location: column
+#| fig-width: 7
+#| fig-height: 3
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, 
+             y = bill_depth_mm, 
+             color = species,
+             shape = species)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "gray50") + 
+  theme_minimal() #choose your theme
+```
+
+```{r}
+#| output-location: column
+#| fig-width: 7
+#| fig-height: 3
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, 
+             y = bill_depth_mm, 
+             color = species,
+             shape = species)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "gray50") + 
+  theme_classic() #choose your theme
+```
+
+## Pimp my graph: labels
+
+```{r}
+#| output-location: slide 
+#| fig-width: 7
+#| fig-height: 4.4
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, 
+             y = bill_depth_mm, 
+             color = species, 
+             shape = species)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "gray50") + 
+  theme_classic() + #choose your theme 
+  labs(title = "Flipper and Bill length", 
+        subtitle = "Palmer Station Data", 
+        y = "Flipper length (mm)", 
+        x = "Bill length (mm)", 
+       color = "Penguin species",
+       shape = "Penguin species")
+```
+
+## Pimp my graph: legend position
+
+```{r}
+#| output-location: fragment 
+#| fig-width: 7
+#| fig-height: 3
+
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, 
+             y = bill_depth_mm, 
+             color = species, 
+             shape = species)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "gray50") + 
+  theme_classic() + #choose your theme 
+  labs(title = "Flipper and Bill length", 
+        subtitle = "Palmer Station Data", 
+        y = "Flipper length (mm)", 
+        x = "Bill length (mm)", 
+       color = "Penguin species",
+       shape = "Penguin species") + 
+  theme(legend.position = c(.9, .18))
+```
+
+# Back to slides!
+
+# Data transformations
+
+## Data transformations
+
+```{r}
+pacman::p_load(MASS, ggrepel)
+```
+
+```{r}
+head(mammals)
+```
+
+## Log transformations
+
+```{r}
+#| output-location: fragment 
+#| fig-width: 7
+#| fig-height: 3
+mammals %>% 
+  ggplot(aes(x = body, 
+             y = brain)) + 
+  geom_point()
+```
+
+## Log transformations
+
+```{r}
+#| output-location: fragment 
+#| fig-width: 7
+#| fig-height: 3
+mammals %>% 
+  ggplot(aes(x = body, 
+             y = brain)) + 
+  geom_point() + 
+  scale_y_log10()
+```
+
+## Log transformations
+
+```{r}
+#| output-location: fragment 
+#| fig-width: 7
+#| fig-height: 3
+mammals %>% 
+  ggplot(aes(x = body, 
+             y = brain)) + 
+  geom_point() + 
+  scale_y_log10() + scale_x_log10()
+```
+
+## Log transformations with ggrepel
+
+```{r}
+mammals <- rownames_to_column(mammals, "species_names")
+```
+
+```{r}
+#| output-location: fragment 
+#| fig-width: 7
+#| fig-height: 3
+mammals %>% 
+  ggplot(aes(x = body, 
+             y = brain, 
+             label = species_names)) + 
+  geom_point() + 
+  geom_text_repel() + 
+  scale_y_log10() + scale_x_log10()
+```
+
+# Data transformations
+
+There is no analysis where you do not have to transform the data
+
+## Data transformations
+
+```{r}
+head(penguins)
+```
+
+![](images/screenshoot_Selection_2305.png)
+
+## Pivoting data 1
+
+![](images/original-dfs-tidy.png)
+
+## Pivoting data 2
+
+![](images/tidyr-longer-wider.gif)
+
+## Pivoting data: wider to long
+
+```{r}
+penguins %>% 
+  pivot_longer(contains("mm"), 
+               names_to = "characteristic", 
+               values_to = "values")
+```
+
+## Plotting long data
+
+```{r}
+#| output-location: fragment 
+#| fig-width: 7
+#| fig-height: 3
+penguins %>% 
+  pivot_longer(contains("mm"), 
+               names_to = "characteristic", 
+               values_to = "values") %>% 
+  ggplot(aes(x = body_mass_g, 
+             y = values, 
+             shape = characteristic, 
+             color = species)) + 
+  geom_point() + 
+  scale_y_log10()
+```
+
+## Better option
+
+```{r}
+#| output-location: fragment 
+#| fig-width: 7
+#| fig-height: 3
+penguins %>% 
+  pivot_longer(contains("mm"), 
+               names_to = "characteristic", 
+               values_to = "values") %>% 
+  ggplot(aes(x = body_mass_g, 
+             y = values, 
+             shape = characteristic, 
+             color = species)) + 
+  geom_point() + 
+  scale_y_log10() + 
+  facet_grid(species ~ characteristic)
+```
