@@ -46,7 +46,7 @@ pacman::p_load(tidyverse, palmerpenguins)
 ## Load the packages
 
 ```{r, echo=TRUE, eval=FALSE}
-install.packages("pacman")
+# install.packages("pacman")
 pacman::p_load(tidyverse, palmerpenguins)
 ```
 
@@ -474,8 +474,8 @@ There is no analysis where you do not have to transform the data
 ### Select()
 
 ```{r}
-penguins %>% 
-  select(species, sex)
+#penguins %>% 
+#   select(species)
 ```
 
 ### filter()
@@ -591,3 +591,40 @@ penguins %>%
   scale_y_log10() + 
   facet_grid(species ~ characteristic)
 ```
+
+
+# Model summary
+
+```{r}
+pacman::p_load(modelsummary)
+```
+
+Create a model
+
+```{r}
+mod <- lm(body_mass_g ~ species + sex, data = penguins)
+mod2 <- lm(body_mass_g ~ species + sex + island, data = penguins)
+mod3 <- lm(body_mass_g ~ species + sex + island + bill_length_mm, data = penguins)
+```
+
+```{r}
+modelsummary::datasummary_balance(~species, 
+                                  data = penguins, 
+                                  title = "This is the title", 
+                                  notes = "Some notes")
+```
+
+
+```{r}
+modelsummary::modelsummary(list(mod, mod2, mod3), 
+                           statistic = "{std.error} ({p.value})")
+```
+
+```{r}
+modelsummary::modelplot(list(mod, mod2, mod3))
+```
+```{r}
+gtsummary::tbl_regression(mod)
+```
+
+

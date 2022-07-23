@@ -1,0 +1,49 @@
+---
+format: revealjs
+execute:
+  echo: true
+---
+
+```{r}
+#| echo: false
+#| include: false
+library(ggplot2)
+library(magrittr)
+```
+
+# First slide
+
+the graphic should appear in the following slide
+
+```{r}
+#| output-location: slide 
+mtcars %>% 
+  ggplot(aes(x = as.factor(cyl), 
+             y = mpg)) +
+  geom_boxplot() +
+  labs(title = "graph 1")
+  
+```
+
+# Other content
+
+here some text
+
+# Second slide
+
+
+now the second slide
+
+```{r}
+#| output-location: slide 
+mtcars %>% 
+  ggplot(aes(x = as.factor(cyl), 
+             y = mpg)) +
+  geom_boxplot() +
+  labs(title = "graph 2")
+  
+```
+
+# End
+
+End of the presentation
